@@ -3,6 +3,7 @@ import threading
 import subprocess
 import shutil
 from pathlib import Path
+import socket
 
 # add these imports:
 from pwnagotchi.plugins import Plugin
@@ -16,7 +17,7 @@ DEFAULT_REMOTE_PATH = "handshakes"
 
 class OneDriveBackup(Plugin):
     __author__ = "AWWShuck"
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
     __license__ = 'GPL3'
     __description__ = "Backup handshakes to OneDrive using rclone"
 
@@ -31,6 +32,8 @@ class OneDriveBackup(Plugin):
         self.interval = max(int(self.options.get("interval", DEFAULT_INTERVAL)), 1)
         self.remote_name = self.options.get("remote_name", DEFAULT_REMOTE_NAME)
         self.remote_path = self.options.get("remote_path", DEFAULT_REMOTE_PATH)
+        # capture this device’s hostname for per‐device subfolder
+        self.hostname = socket.gethostname()
 
         if not self.handshakes_dir.exists():
             self.log.error(f"Handshake directory {self.handshakes_dir!r} missing; aborting backups.")
@@ -54,17 +57,21 @@ class OneDriveBackup(Plugin):
             return
 
         try:
+            # UI: show “syncing” face  
+            self.update_status(Status("Backing up…", icon="sync"))
             self.log.info(f"Backing up from {self.handshakes_dir} → {self.remote_name}:{self.remote_path}")
+
             for f in self.handshakes_dir.rglob("*"):
                 if f.is_file():
                     self.log.debug(f" - {f}")
 
+            # sync into a subfolder named after this device’s hostname
+            target = f"{self.remote_name}:{self.remote_path}/{self.hostname}"
             cmd = [
                 "rclone", "sync",
                 str(self.handshakes_dir),
-                f"{self.remote_name}:{self.remote_path}"
+                target
             ]
-            # fix logging call here:
             self.log.debug(f"Running: {' '.join(cmd)}")
             result = subprocess.run(
                 cmd,
@@ -75,12 +82,18 @@ class OneDriveBackup(Plugin):
 
             if result.returncode == 0:
                 self.log.info("Backup completed successfully.")
-                self.update_status(Status("Handshakes backed up!"))
+                # UI: happy face  
+                self.update_status(Status("Done!", icon="check"))
             else:
                 self.log.error(f"Backup failed ({result.returncode}): {result.stderr.strip()}")
+                # UI: sad face  
+                self.update_status(Status("Fail!", icon="cross"))
 
         except Exception as e:
             self.log.error(f"Unexpected error during backup: {e}")
+            # UI: worried face  
+            self.update_status(Status("Error during backup", icon="⚠"))
+
         finally:
             self._backup_lock.release()
 
