@@ -19,7 +19,6 @@ The `OneDriveBackup` plugin automatically backs up handshakes from your Pwnagotc
 1. **Enable the Plugin**:  
    Add the following to your `config.toml` file:
    ```toml
-   # match plugin file onedrivebackup.py (no underscore)
    main.plugins.onedrivebackup.enabled         = true
    main.plugins.onedrivebackup.handshakes_dir  = '/home/pi/handshakes'
    main.plugins.onedrivebackup.interval        = 60
