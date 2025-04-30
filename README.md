@@ -42,6 +42,7 @@ The `OneDriveBackup` plugin automatically backs up handshakes from your Pwnagotc
    - Enter the name you set in `remote_name` (e.g., `onedrive`).  
    - Select `OneDrive` as the storage type.  
    - Follow the prompts to authenticate with your Microsoft account.
+   - Note you will need to use one of the methods listed here to get your oauth token https://rclone.org/remote_setup/
 
 4. **Verify the Configuration**:  
    ```bash
