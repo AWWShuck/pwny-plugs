@@ -1,10 +1,10 @@
 # OneDriveBackup Plugin for Pwnagotchi
 
-*Version 1.0.3*
+*Version 1.0.4*
 
 Automatically back up your Pwnagotchi handshakes and related files to Microsoft OneDrive using rclone.
 
-## What's New in Version 1.0.3
+## What's New in Version 1.0.4
 - **UI Updates**: Fixed an issue where status updates were not appearing on the Pwnagotchi screen.
 - **Improved Logging**: Added more detailed logs for debugging and tracking backup progress.
 - **Backup Timer Fix**: Resolved issues with stale backup timers.
