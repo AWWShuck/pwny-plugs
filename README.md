@@ -1,195 +1,129 @@
-# OneDriveBackup Plugin for Pwnagotchi
+# PwnyCloud
 
-*Version 1.0.4*
+**PwnyCloud** is a Pwnagotchi plugin that automatically backs up handshakes and related files to any cloud provider supported by [rclone](https://rclone.org/).  
+It is designed for flexibility and supports a wide range of cloud storage services, including (but not limited to) OneDrive, Google Drive, Dropbox, Box, Mega, and many more.
 
-Automatically back up your Pwnagotchi handshakes and related files to Microsoft OneDrive using rclone.
-
-## What's New in Version 1.0.4
-- **UI Updates**: Fixed an issue where status updates were not appearing on the Pwnagotchi screen.
-- **Improved Logging**: Added more detailed logs for debugging and tracking backup progress.
-- **Backup Timer Fix**: Resolved issues with stale backup timers.
-- **Enhanced Error Handling**: Improved handling of rclone errors, including authentication and network issues.
-
-## Quick Start
-
-```bash
-# 1. Install rclone and set up OneDrive remote on your PC
-# 2. Install the plugin on your Pwnagotchi
-wget -O /usr/local/share/pwnagotchi/installed-plugins/onedrivebackup.py https://raw.githubusercontent.com/AWWShuck/pwny-plugs/main/onedrivebackup.py
-
-# 3. Copy your rclone config to Pwnagotchi
-sudo mkdir -p /root/.config/rclone
-sudo nano /root/.config/rclone/rclone.conf  # paste your [onedrive] config section
-sudo chmod 600 /root/.config/rclone/rclone.conf
-
-# 4. Enable the plugin in config.toml
-# main.plugins.onedrivebackup.enabled = true
-# main.plugins.onedrivebackup.remote_name = "onedrive"
-```
+---
 
 ## Features
 
-- Backs up all files (pcap, json, pot, etc.) from your handshakes directory
-- Supports both native OneDrive API and WebDAV connections
-- Provides detailed logs with success rates by file extension
-- Shows backup status on the Pwnagotchi UI
-- Creates device-specific folders on OneDrive
-- Smart backup timing: both scheduled and after new handshake captures
-- Only uploads new or changed files to save bandwidth
+- **Automatic backup** of handshakes to the cloud
+- **Supports any rclone-compatible provider**
+- **Only uploads new or changed files**
+- **Animated Pwnagotchi faces during upload**
+- **Test mode** for dry runs
+- **Configurable backup interval and remote**
+
+---
+
+## Supported Cloud Providers
+
+PwnyCloud supports any service that [rclone](https://rclone.org/) supports, including:
+
+- **Microsoft OneDrive** (tested)
+- **Google Drive**
+- **Dropbox**
+- **Box**
+- **Mega**
+- **Amazon S3**
+- **Backblaze B2**
+- **pCloud**
+- ...and many more!
+
+See the [full list of rclone backends](https://rclone.org/overview/) for all supported services.
+
+---
 
 ## Installation
 
-1. SSH into your Pwnagotchi
-2. Install rclone:
-   ```bash
-   curl https://rclone.org/install.sh | sudo bash
-   ```
-3. Copy the plugin file to your plugins directory:
-   ```bash
-   wget -O /usr/local/share/pwnagotchi/installed-plugins/onedrivebackup.py https://raw.githubusercontent.com/AWWShuck/pwny-plugs/main/onedrivebackup.py
-   ```
-4. Configure rclone as described below
-5. Update your `config.toml` to enable the plugin
+1. **Install rclone** on your Pwnagotchi:
+    ```sh
+    curl https://rclone.org/install.sh | sudo bash
+    ```
 
-## Configuration
+2. **Configure your cloud provider** with rclone:
+    ```sh
+    rclone config
+    ```
+    - Follow the prompts to set up your remote (e.g., `pwnycloud`, `onedrive`, `gdrive`, etc.).
+    - Make note of the remote name you choose.
 
-### Required Configuration
+3. **Copy `pwnycloud.py` to your plugins directory:**
+    ```sh
+    cp pwnycloud.py /usr/local/lib/python3.7/dist-packages/pwnagotchi/plugins/  # adjust path as needed
+    ```
 
-Add the following to your `config.toml` file:
-```toml
-main.plugins.onedrivebackup.enabled = true
-main.plugins.onedrivebackup.remote_name = "onedrive"
-```
+4. **Edit your Pwnagotchi config.toml:**
+    ```toml
+    [[plugins.pwnycloud]]
+    enabled = true
+    remote_name = "pwnycloud"      # or your chosen rclone remote name
+    remote_path = "handshakes"     # folder in your cloud storage
+    interval = 60                  # backup interval in minutes
+    test_mode = false              # set to true for dry run
+    ```
 
-### Optional Configuration
+---
 
-These settings have default values but can be customized:
-```toml
-# Directory containing handshakes (default: "/home/pi/handshakes")
-main.plugins.onedrivebackup.handshakes_dir = "/home/pi/handshakes"
+## Example: OneDrive Setup
 
-# Backup frequency in minutes (default: 60)
-main.plugins.onedrivebackup.interval = 60
+1. **Configure OneDrive with rclone:**
+    ```sh
+    rclone config
+    ```
+    - Choose `n` for new remote, name it (e.g., `pwnycloud` or `onedrive`)
+    - Select `OneDrive` as the storage type
+    - Follow the prompts to authenticate
 
-# Folder path in OneDrive (default: "handshakes")
-main.plugins.onedrivebackup.remote_path = "handshakes"
+2. **Set your plugin config:**
+    ```toml
+    [[plugins.pwnycloud]]
+    enabled = true
+    remote_name = "onedrive"
+    remote_path = "handshakes"
+    interval = 60
+    ```
 
-# File types to backup (default: "pcap,json,pcapng,pot,hccapx,16800")
-main.plugins.onedrivebackup.file_types = "pcap,json,pcapng,pot,hccapx,16800" 
-```
+---
 
-## OneDrive Configuration
+## Example: Google Drive Setup
 
-### Standard OneDrive Setup
+1. **Configure Google Drive with rclone:**
+    ```sh
+    rclone config
+    ```
+    - Choose `n` for new remote, name it (e.g., `gdrive`)
+    - Select `Google Drive` as the storage type
+    - Follow the prompts to authenticate
 
-1. On your PC, install rclone from [rclone.org/downloads](https://rclone.org/downloads/)
-2. Configure OneDrive:
-   ```bash
-   rclone config
-   # Select "n" for a new remote
-   # Name: onedrive
-   # Storage: Microsoft OneDrive
-   # Follow the browser authentication flow
-   ```
-3. Copy your PC's rclone config file to your Pwnagotchi:
-   ```bash
-   # Windows: C:/Users/[YourUsername]/AppData/Roaming/rclone/rclone.conf
-   # Mac/Linux: ~/.config/rclone/rclone.conf
-   
-   # On Pwnagotchi:
-   sudo mkdir -p /root/.config/rclone
-   sudo nano /root/.config/rclone/rclone.conf
-   # Paste the [onedrive] section
-   sudo chmod 600 /root/.config/rclone/rclone.conf
-   ```
+2. **Set your plugin config:**
+    ```toml
+    [[plugins.pwnycloud]]
+    enabled = true
+    remote_name = "gdrive"
+    remote_path = "handshakes"
+    interval = 60
+    ```
 
-### WebDAV Setup (For Authentication Issues)
+---
 
-If you experience persistent authentication problems with the standard setup:
+## Notes
 
-1. Find your OneDrive CID:
-   - Sign in to OneDrive in your browser
-   - Right-click any file and select "Copy link"
-   - Open this link, and look for "cid=XXXXXXXX" in the URL
+- The plugin will only upload new or changed files since the last backup.
+- You can use any rclone remote name and path.
+- For a full list of supported cloud providers, see [rclone.org/overview](https://rclone.org/overview/).
 
-2. On your PC, create a WebDAV connection:
-   ```bash
-   rclone config
-   # Select "n" for a new remote
-   # Name: onedrive
-   # Storage: WebDAV
-   # URL: https://d.docs.live.net/YOURCID
-   # Vendor: other
-   # User: your@email.com
-   # Pass: yourpassword (or app password)
-   ```
+---
 
-3. Copy this config to your Pwnagotchi as described in the standard setup
+## Credits
 
-## Usage
-Once the plugin is enabled and configured:
-- Backups run immediately on startup and then at each interval.
-- Files are synced into a subfolder `<remote_path>/<hostname>` on OneDrive, so multiple devices don't overwrite each other.
-- On the Pwnagotchi's LCD you'll see:
-  * "Backing up…" with the sync icon  
-  * "Done!" with the check icon on success  
-  * "Fail!" with the cross icon on failure  
-  * "Error during backup" with the warning icon on exceptions
+- Plugin author: **AWWShuck**
+- Inspired by the Pwnagotchi and rclone communities
 
-## Logs
-Monitor the backup process:
-```bash
-tail -f /var/log/pwnagotchi.log
-```
-
-## Troubleshooting
-
-### Authentication Issues
-
-1. Create an app password instead of using your regular password
-   - Go to https://account.microsoft.com/security
-   - Create an app password specifically for rclone
-
-2. Disable security defaults
-   - Go to https://account.microsoft.com/security
-   - Find and disable "Security defaults"
-
-3. Try a different Microsoft account
-   - Create a dedicated account for this purpose
-   - Share your OneDrive folder with this account
-
-4. Update rclone to the latest version
-   ```bash
-   curl https://rclone.org/install.sh | sudo bash
-   ```
-
-### Testing the Connection
-
-Test your configuration directly:
-```bash
-sudo rclone --config /root/.config/rclone/rclone.conf lsd onedrive:
-```
-
-### Check for File Type Support
-
-You can verify which file types are being backed up by checking the plugin logs, which now report success rates by file extension:
-
-```
-File extension summary:
-  .pcap: 15/15 files uploaded successfully
-  .json: 10/10 files uploaded successfully
-  .pot: 5/5 files uploaded successfully
-```
-
-### Web UI Toggle Issues
-
-If you encounter an error in logs about `on_unload()` taking 1 positional argument but 2 were given:
-```
-Update to the latest version of the plugin, which fixes an issue with enabling/disabling the plugin through the web UI.
-```
+---
 
 ## License
-MIT License
 
-## Author
-- **AWWShuck**
+GPLv3
+
+---
