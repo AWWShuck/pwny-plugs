@@ -24,7 +24,7 @@ class OneDriveBackup(Plugin):
     See README.md for detailed setup instructions
     """
     __author__ = "AWWShuck"
-    __version__ = "1.0.1"
+    __version__ = "1.0.2"
     __license__ = 'GPL3'
     __description__ = "Backup handshakes to OneDrive using rclone"
 
@@ -312,13 +312,5 @@ class OneDriveBackup(Plugin):
         self._pending_backup = threading.Timer(300, self._backup_handshakes)
         self._pending_backup.start()
 
-    def on_unload(self):
-        if self.backup_timer:
-            self.backup_timer.cancel()
-            self.backup_timer = None
-        
-        if hasattr(self, '_pending_backup') and self._pending_backup:
-            self._pending_backup.cancel()
-            self._pending_backup = None
-        
-        self._log_info("OneDrive plugin unloaded.")
+    def on_unload(self, ui):
+        pass

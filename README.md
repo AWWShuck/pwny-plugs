@@ -154,6 +154,13 @@ File extension summary:
   .pot: 5/5 files uploaded successfully
 ```
 
+### Web UI Toggle Issues
+
+If you encounter an error in logs about `on_unload()` taking 1 positional argument but 2 were given:
+```
+Update to the latest version of the plugin, which fixes an issue with enabling/disabling the plugin through the web UI.
+```
+
 ## License
 
 ## Author
