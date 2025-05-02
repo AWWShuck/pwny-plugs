@@ -18,11 +18,14 @@ It is designed for flexibility and supports a wide range of cloud storage servic
 ## Features
 
 - **Automatic backup** of handshakes to the cloud
+- **Webhook support** for triggering backups remotely
+- **Automatic backup when new handshakes are captured**
+- **Status display** showing number of backed-up files
 - **Supports any rclone-compatible provider**
 - **Only uploads new or changed files**
 - **Animated Pwnagotchi faces during upload**
 - **Test mode** for dry runs
-- **Hardcoded backup configuration for simplicity**
+- **Reset command** to clear upload history and force full backup
 
 ---
 
@@ -69,8 +72,10 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
     main.plugins.pwnycloud.remote_name = "pwnycloud"      # or your chosen rclone remote name
     # all others optional #
     main.plugins.pwnycloud.remote_path = "handshakes"     # folder in your cloud storage
-    main.plugins.pwnycloud.interval = 60                  # backup interval in minutes
+    main.plugins.pwnycloud.interval = 60                  # backup interval in seconds
     main.plugins.pwnycloud.test_mode = false              # set to true for dry run
+    main.plugins.pwnycloud.min_size = 0                   # minimum file size in bytes
+    main.plugins.pwnycloud.max_bw = "1M"                  # bandwidth limit (1MB/s)
     ```
 
 ---
@@ -115,11 +120,60 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
 
 ---
 
+## Using Webhooks
+
+PwnyCloud v1.0.7 adds webhook support, allowing you to trigger backups remotely:
+
+- **Trigger a backup**:
+    ```
+    http://pwnagotchi-ip:8081/plugins/pwnycloud/trigger
+    ```
+
+- **Reset upload history and trigger full backup**:
+    ```
+    http://pwnagotchi-ip:8081/plugins/pwnycloud/trigger?cmd=reset
+    ```
+
+- **Check status** (returns information about backup state):
+    ```
+    http://pwnagotchi-ip:8081/plugins/pwnycloud/trigger?cmd=status
+    ```
+
+---
+
 ## Notes
 
 - The plugin will only upload new or changed files since the last backup.
 - You can use any rclone remote name and path.
+- The UI shows the number of backed-up files with an upward arrow icon.
+- Automatic backup is triggered when new handshakes are captured.
 - For a full list of supported cloud providers, see [rclone.org/overview](https://rclone.org/overview/).
+
+---
+
+## Roadmap
+
+Here are the planned features for upcoming releases:
+
+### UI/UX Improvements
+- Upload progress tracking with real-time feedback
+- Advanced status display with upload speeds and ETA
+- Visual success/failure notifications
+- Configurable UI position for backup status
+- Handshake count display for pending backups
+
+### API Enhancements
+- Extended webhook API with comprehensive commands
+- Statistics endpoint for backup history and reporting
+- Remote control for specific file operations
+- Two-way sync capability to restore files from cloud storage
+
+### Performance Optimizations
+- Smarter file change detection with checksums
+- Dynamic bandwidth throttling and enhanced control options
+- Support for resuming interrupted uploads
+- Error recovery with auto-retry for failed uploads
+- Optional local file cleanup after successful upload
 
 ---
 
@@ -135,6 +189,6 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
 GPLv3
 
 ## Version
-1.0.6
+1.0.7
 
 ---

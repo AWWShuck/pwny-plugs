@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.0.7] - 2025-05-02
+### Added
+- Webhook support for triggering backups remotely via web browser
+- Automatic backup when new handshakes are captured
+- Compact UI with status display showing upload count with arrow indicator
+- 'Reset' command to clear upload history and force full backup
+- Status API to query current backup state and statistics
+
+### Fixed
+- Potential race condition in backup process
+- Thread cancellation method for cleaner shutdown
+- Path handling in webhook URLs
+- State file handling when corrupt or missing
+
+### Changed
+- Reduced log verbosity for production environments
+- Better request parameter handling in webhooks
+- Added file-based logging for easier troubleshooting
+- Enhanced error handling for network connectivity issues
+- Improved thread management to prevent resource leaks
+
+---
+
 ## [1.0.6] - 2025-05-01
 ### Added
 - Initial release of the PwnyCloud plugin.
