@@ -22,7 +22,7 @@ It is designed for flexibility and supports a wide range of cloud storage servic
 - **Only uploads new or changed files**
 - **Animated Pwnagotchi faces during upload**
 - **Test mode** for dry runs
-- **Configurable backup interval and remote**
+- **Hardcoded backup configuration for simplicity**
 
 ---
 
@@ -58,19 +58,19 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
     - Follow the prompts to set up your remote (e.g., `pwnycloud`, `onedrive`, `gdrive`, etc.).
     - Make note of the remote name you choose.
 
-3. **Copy `pwnycloud.py` to your plugins directory:**
+3. **Copy [pwnycloud.py](http://_vscodecontentref_/1) to your plugins directory:**
     ```sh
-    cp pwnycloud.py /usr/local/lib/python3.7/dist-packages/pwnagotchi/plugins/  # adjust path as needed
+    sudo cp pwnycloud.py /usr/local/share/pwnagotchi/custom-plugins/  # updated path for custom plugins
     ```
 
 4. **Edit your Pwnagotchi config.toml:**
     ```toml
-    [[plugins.pwnycloud]]
-    enabled = true
-    remote_name = "pwnycloud"      # or your chosen rclone remote name
-    remote_path = "handshakes"     # folder in your cloud storage
-    interval = 60                  # backup interval in minutes
-    test_mode = false              # set to true for dry run
+    main.plugins.pwnycloud.enabled = true
+    main.plugins.pwnycloud.remote_name = "pwnycloud"      # or your chosen rclone remote name
+    # all others optional #
+    main.plugins.pwnycloud.remote_path = "handshakes"     # folder in your cloud storage
+    main.plugins.pwnycloud.interval = 60                  # backup interval in minutes
+    main.plugins.pwnycloud.test_mode = false              # set to true for dry run
     ```
 
 ---
@@ -87,11 +87,10 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
 
 2. **Set your plugin config:**
     ```toml
-    [[plugins.pwnycloud]]
-    enabled = true
-    remote_name = "onedrive"
-    remote_path = "handshakes"
-    interval = 60
+    main.plugins.pwnycloud.enabled = true
+    main.plugins.pwnycloud.remote_name = "onedrive"
+    main.plugins.pwnycloud.remote_path = "handshakes"
+    main.plugins.pwnycloud.interval = 60
     ```
 
 ---
@@ -108,11 +107,10 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
 
 2. **Set your plugin config:**
     ```toml
-    [[plugins.pwnycloud]]
-    enabled = true
-    remote_name = "gdrive"
-    remote_path = "handshakes"
-    interval = 60
+    main.plugins.pwnycloud.enabled = true
+    main.plugins.pwnycloud.remote_name = "gdrive"
+    main.plugins.pwnycloud.remote_path = "handshakes"
+    main.plugins.pwnycloud.interval = 60
     ```
 
 ---
@@ -135,5 +133,8 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
 ## License
 
 GPLv3
+
+## Version
+1.0.6
 
 ---
