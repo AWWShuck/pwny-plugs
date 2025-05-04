@@ -70,8 +70,8 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
     ```toml
     main.plugins.pwnycloud.enabled = true
     main.plugins.pwnycloud.remote_name = "pwnycloud"      # or your chosen rclone remote name
-    # all others optional #
     main.plugins.pwnycloud.remote_path = "handshakes"     # folder in your cloud storage
+    # all others optional #
     main.plugins.pwnycloud.interval = 60                  # backup interval in seconds
     main.plugins.pwnycloud.test_mode = false              # set to true for dry run
     main.plugins.pwnycloud.min_size = 0                   # minimum file size in bytes
