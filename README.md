@@ -54,9 +54,9 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
     curl https://rclone.org/install.sh | sudo bash
     ```
 
-2. **Configure your cloud provider** with rclone:
+2. **Configure your cloud provider** with rclone (run as `sudo` to avoid permission issues):
     ```sh
-    rclone config
+    sudo rclone config
     ```
     - Follow the prompts to set up your remote (e.g., `pwnycloud`, `onedrive`, `gdrive`, etc.).
     - Make note of the remote name you choose.
@@ -77,6 +77,10 @@ See the [full list of rclone backends](https://rclone.org/overview/) for all sup
     main.plugins.pwnycloud.min_size = 0                   # minimum file size in bytes
     main.plugins.pwnycloud.max_bw = "1M"                  # bandwidth limit (1MB/s)
     ```
+
+---
+
+By running `rclone config` as `sudo`, the configuration file will be created in the correct location (`/root/.config/rclone/rclone.conf`), and no additional troubleshooting steps will be required.
 
 ---
 
@@ -148,6 +152,51 @@ PwnyCloud v1.0.7 adds webhook support, allowing you to trigger backups remotely:
 - The UI shows the number of backed-up files with an upward arrow icon.
 - Automatic backup is triggered when new handshakes are captured.
 - For a full list of supported cloud providers, see [rclone.org/overview](https://rclone.org/overview/).
+
+---
+
+## Troubleshooting
+
+### Remote Not Found or Permission Issues
+If the PwnyCloud plugin cannot find the configured `rclone` remote or you encounter permission issues, follow these steps:
+
+1. **Verify rclone Configuration File Location**  
+   Ensure the `rclone` configuration file exists at `/root/.config/rclone/rclone.conf`. Run:
+   ```bash
+   sudo ls -l /root/.config/rclone/rclone.conf
+   ```
+   If the file does not exist, it may have been created under the `pi` user instead.
+
+2. **Copy Configuration File to Root**  
+   If the configuration file exists under the `pi` user (e.g., `/home/pi/.config/rclone/rclone.conf`), copy it to the correct location for the `root` user:
+   ```bash
+   sudo mkdir -p /root/.config/rclone
+   sudo cp /home/pi/.config/rclone/rclone.conf /root/.config/rclone.conf
+   sudo chown root:root /root/.config/rclone/rclone.conf
+   sudo chmod 600 /root/.config/rclone/rclone.conf
+   ```
+
+3. **Test rclone as Root**  
+   Verify that the `rclone` remote is accessible by the `root` user:
+   ```bash
+   sudo rclone listremotes
+   ```
+   You should see your remote (e.g., `pwnycloud:`) listed. Then, test listing files in the remote:
+   ```bash
+   sudo rclone ls pwnycloud:
+   ```
+
+4. **Restart Pwnagotchi**  
+   Restart the Pwnagotchi service to apply the changes:
+   ```bash
+   sudo systemctl restart pwnagotchi
+   ```
+
+5. **Check Plugin Logs**  
+   If the issue persists, check the plugin logs for detailed error messages:
+   ```bash
+   cat /tmp/pwnycloud_debug.log
+   ```
 
 ---
 
