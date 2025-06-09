@@ -34,7 +34,7 @@ def with_backup_lock(lock):
 
 class PwnyCloud(Plugin):
     __author__ = "AWWShuck"
-    __version__ = "1.0.7"
+    __version__ = "1.0.8"
     __license__ = 'GPL3'
     __description__ = "Backup handshakes to any cloud provider using rclone"
     """
@@ -177,11 +177,14 @@ class PwnyCloud(Plugin):
     def on_ui_update(self, ui):
         if self.ready:
             if self._backup_lock.locked():
-                status = f"→{self.options['remote_name']}"  # Arrow indicates uploading
+                status = "Sync: ..."
             else:
-                # Count files in the state file
-                file_count = len(self._uploaded_files)
-                status = f"{file_count}↑"  # Up arrow indicates uploaded files
+                last_sync = getattr(self, "_last_backup_time", None)
+                if last_sync:
+                    # Show time in HH:MM format
+                    status = f"Sync: OK {time.strftime('%H:%M', time.localtime(last_sync))}"
+                else:
+                    status = "Sync: OK"
             ui.set('backup_status', status)
 
     def on_unload(self, ui):
@@ -242,38 +245,35 @@ class PwnyCloud(Plugin):
         self.log.info("Backup process triggered.")
         for handler in self.log.handlers:
             handler.flush()
-        
         if not self.ready:
             self.log.warning("Plugin not fully initialized - skipping backup.")
             return
-            
         try:
             has_internet = self._is_internet_available()
             self.log.info(f"Internet check result: {has_internet}")
-            
             if not has_internet:
                 self.update_ui(SAD, f"No internet - can't backup to {self.options['remote_name']}")
                 self.log.warning("No internet connection - skipping backup.")
                 return
-        
             self.log.info("Starting backup process...")
             self.update_ui(LOOK_R, "Checking for new files…")
-        
             try:
                 files_to_upload = self._get_files_to_upload()
                 self.log.info(f"Found {len(files_to_upload)} files to upload")
             except Exception as e:
                 self.log.error(f"Exception in _get_files_to_upload: {e}", exc_info=True)
                 return
-        
             if not files_to_upload:
                 self.update_ui(SMART, f"No new files for {self.options['remote_name']}")
                 self.log.info("No new files to upload.")
+                # Mark last sync time even if nothing to upload
+                self._last_backup_time = int(time.time())
                 return
-        
             self.log.info(f"Uploading {len(files_to_upload)} files...")
             self._upload_files(files_to_upload)
             self.log.info("Backup process completed.")
+            # Mark last sync time after successful backup
+            self._last_backup_time = int(time.time())
         except Exception as e:
             self.log.error(f"Unexpected error in backup process: {e}", exc_info=True)
         finally:

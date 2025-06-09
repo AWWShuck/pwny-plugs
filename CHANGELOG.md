@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.8] - 2025-06-09
+### Changed
+- Updated UI sync status to a minimalist hybrid: now displays `Sync: OK` with the last successful sync time (HH:MM) after OK.
+- Removed file count from on-display sync status for a cleaner look.
+- Improved clarity of sync state: shows `Sync: ...` when syncing, `Sync: OK [time]` when idle, and `Sync: OK` if never synced.
+
+---
+
 ## [1.0.7] - 2025-05-02
 ### Added
 - Webhook support for triggering backups remotely via web browser
